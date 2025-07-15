@@ -5,5 +5,9 @@ services:
     buildCommand: ""
     startCommand: gunicorn app:app
     envVars:
-      - key: FLASK_ENV
-        value: production
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: EMAIL_TO
+        sync: false
