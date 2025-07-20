@@ -46,3 +46,6 @@ def send_email(name, email, message):
         smtp.starttls()
         smtp.login(SMTP_LOGIN, SMTP_PASSWORD)
         smtp.send_message(msg)
+
+if __name__ == '__main__':
+    app.run(debug=True)
