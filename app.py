@@ -1,30 +1,48 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import smtplib
-from email.mime.text import MIMEText
+from email.message import EmailMessage
 import os
 
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/app/contact', methods=[POST])
+@app.route('/contact', methods=['POST'])
 def contact():
     data = request.json
     name = data.get('name')
     email = data.get('email')
     message = data.get('message')
 
-    content = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
-    msg = MIMEText(content)
-    msg['Subject'] = 'New Message from Portfolio Contact Form'
-    msg['From'] = os.environ['EMAIL_USER']
-    msg['To'] = os.environ['EMAIL_TO']
+    if not all([name, email, message]):
+        return jsonify({'error': 'Missing required fields'}), 400
 
     try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            smtp.login(os.environ['EMAIL_USER'], os.environ['EMAIL_PASS'])
-            smtp.send_message(msg)
-        return jsonify({'status': 'sent'}), 200
+        send_email(name, email, message)
+        return jsonify({'success': 'Message sent successfully'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(e)
+        return jsonify({'error': 'Failed to send message'}), 500
 
+def send_email(name, email, message):
+    SMTP_SERVER = 'smtp-relay.brevo.com'
+    SMTP_PORT = 587
+    SMTP_LOGIN = os.environ.get('BREVO_LOGIN')  
+    SMTP_PASSWORD = os.environ.get('BREVO_SMTP_KEY')
+    RECEIVER_EMAIL = os.environ.get('RECEIVER_EMAIL')
+
+    msg = EmailMessage()
+    msg['Subject'] = f'New message from {name}'
+    msg['From'] = SMTP_LOGIN
+    msg['To'] = RECEIVER_EMAIL
+    msg.set_content(f"""
+    Name: {name}
+    Email: {email}
+    Message:
+    {message}
+    """)
+
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as smtp:
+        smtp.starttls()
+        smtp.login(SMTP_LOGIN, SMTP_PASSWORD)
+        smtp.send_message(msg)
