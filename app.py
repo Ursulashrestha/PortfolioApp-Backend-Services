@@ -9,6 +9,9 @@ CORS(app, resources={r"/*": {"origins": "https://ursulashrestha.com.np"}})
 
 @app.route('/contact', methods=['POST'])
 def contact():
+    if request.method == 'OPTIONS':
+        # Handle preflight request
+        return '', 204
     data = request.json
     name = data.get('name')
     email = data.get('email')
