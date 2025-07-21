@@ -5,7 +5,7 @@ from email.message import EmailMessage
 import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://ursulashrestha.com.np"}})
 
 @app.route('/contact', methods=['POST'])
 def contact():
