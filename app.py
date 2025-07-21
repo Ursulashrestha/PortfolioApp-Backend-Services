@@ -22,6 +22,7 @@ def contact():
 
     try:
         send_email(name, email, message)
+        print(f"Sending email from {name} <{email}>: {message}")
         return jsonify({'success': 'Message sent successfully'}), 200
     except Exception as e:
         print(e)
